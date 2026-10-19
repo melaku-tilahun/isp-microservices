@@ -4,7 +4,8 @@ const upload = require('../middlewares/upload');
 const manualPaymentController = require('../controllers/manualPaymentController');
 
 // Submit manual transfer / slip: POST /inv/submit
-router.post('/inv/submit', upload.single('receipt'), (req, res, next) => {
+// Attach upload middleware then verify magic bytes, then controller
+router.post('/inv/submit', upload.single('receipt'), upload.verifyUploadedFile, (req, res, next) => {
     manualPaymentController.submitManualPayment(req, res, next);
 });
 

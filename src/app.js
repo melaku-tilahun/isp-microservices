@@ -1,5 +1,7 @@
 const express = require('express');
 const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const webhookRoutes = require('./routes/webhookRoutes');
 const portalRoutes = require('./routes/portalRoutes');
@@ -9,6 +11,20 @@ const errorHandler = require('./middlewares/errorHandler');
 const AppError = require('./utils/AppError');
 
 const app = express();
+
+// Security headers
+app.disable('x-powered-by');
+app.use(helmet());
+
+// Basic global rate limiting (tune thresholds for your environment)
+const limiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 100, // limit each IP to 100 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: 'Too many requests from this IP, please try again later.'
+});
+app.use(limiter);
 
 // View engine setup
 app.set('view engine', 'ejs');
