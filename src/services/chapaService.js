@@ -9,20 +9,29 @@ class ChapaService {
         this.secretKey = env.CHAPA_SECRET_KEY;
         this.webhookSecret = env.CHAPA_WEBHOOK_SECRET;
         this.apiUrl = CHAPA_API_URL;
+        this.allowedReturnDomains = env.ALLOWED_RETURN_DOMAINS || [];
     }
 
-    /**
-     * Generate a unique transaction reference formatted for Chapa.
-     * Pattern: CHAPA-{custCode}-{timestamp}
-     */
     generateTxRef(customerCode = 'CUST') {
         const cleanCode = (customerCode || 'CUST').replace(/[^a-zA-Z0-9_-]/g, '');
         return `CHAPA-${cleanCode}-${Date.now()}`;
     }
 
-    /**
-     * Initialize a hosted payment session with Chapa.
-     */
+    isAllowedUrl(urlString) {
+        if (!urlString) return false;
+        try {
+            const parsed = new URL(urlString);
+            const hostname = parsed.hostname.toLowerCase();
+            // Allowed if hostname exactly matches or endsWith allowed domain (subdomains allowed)
+            return this.allowedReturnDomains.some(d => {
+                const domain = d.toLowerCase();
+                return hostname === domain || hostname.endsWith(`.${domain}`);
+            });
+        } catch (err) {
+            return false;
+        }
+    }
+
     async initializePayment({
         amount,
         currency = 'ETB',
@@ -41,24 +50,28 @@ class ChapaService {
             throw new AppError('Valid positive payment amount is required.', 400, 'INVALID_AMOUNT');
         }
 
-        // Split full name
+        // Validate return and callback URLs if provided
+        if (returnUrl && !this.isAllowedUrl(returnUrl)) {
+            throw new AppError('Invalid returnUrl provided.', 400, 'INVALID_RETURN_URL');
+        }
+        if (callbackUrl && !this.isAllowedUrl(callbackUrl)) {
+            throw new AppError('Invalid callbackUrl provided.', 400, 'INVALID_CALLBACK_URL');
+        }
+
         const nameParts = (fullName || 'Valued Customer').trim().split(/\s+/);
         const firstName = nameParts[0] || 'Valued';
         const lastName = nameParts.slice(1).join(' ') || 'Customer';
 
-        // Format clean phone number
         let cleanPhone = (phone || '').replace(/[^\d]/g, '');
         if (cleanPhone.length < 9) {
             cleanPhone = '0900000000';
         }
 
-        // Strict email required by Chapa
         const safeCode = (customerCode || 'cust').toLowerCase().replace(/[^a-z0-9]/g, '');
         const email = `${safeCode}@gmail.com`;
 
         const txRef = this.generateTxRef(customerCode);
 
-        // Chapa title constraint: strictly max 16 chars
         const title = 'Internet Payment';
 
         const payload = {
@@ -95,8 +108,8 @@ class ChapaService {
 
         if (!response.ok || result.status !== 'success' || !result.data?.checkout_url) {
             logger.error('[Chapa] Initialization failed:', result);
-            const msg = (result && typeof result.message === 'string') 
-                ? result.message 
+            const msg = (result && typeof result.message === 'string')
+                ? result.message
                 : 'Failed to initiate Chapa payment session';
             throw new AppError(msg, 502, 'GATEWAY_INIT_ERROR');
         }
@@ -107,9 +120,6 @@ class ChapaService {
         };
     }
 
-    /**
-     * Verify a transaction with Chapa API.
-     */
     async verifyTransaction(txRef) {
         if (!txRef) {
             throw new AppError('Transaction reference is required for verification.', 400, 'MISSING_TX_REF');
@@ -149,15 +159,10 @@ class ChapaService {
         };
     }
 
-    /**
-     * Verify HMAC-SHA256 signature of incoming Chapa webhook.
-     * @param {Buffer|string} rawBody - Raw request body
-     * @param {string} signatureHeader - x-chapa-signature header value
-     */
     verifyWebhookSignature(rawBody, signatureHeader) {
         if (!this.webhookSecret) {
-            logger.warn('[Chapa] Webhook secret not configured. Skipping signature verification (not recommended for production).');
-            return true;
+            logger.error('[Chapa] Webhook secret not configured. Rejecting all webhooks.');
+            return false;
         }
 
         if (!signatureHeader || !rawBody) {
@@ -165,13 +170,18 @@ class ChapaService {
         }
 
         try {
+            // Compute HMAC (hex)
             const computedSignature = crypto
                 .createHmac('sha256', this.webhookSecret)
                 .update(rawBody)
                 .digest('hex');
 
-            const signatureBuf = Buffer.from(signatureHeader, 'utf8');
-            const computedBuf = Buffer.from(computedSignature, 'utf8');
+            // Normalize incoming signature: strip optional prefixes like "sha256=" and whitespace
+            const normalized = String(signatureHeader).replace(/^sha256=/i, '').trim();
+
+            // Both values should be hex; compare buffers with timingSafeEqual
+            const signatureBuf = Buffer.from(normalized, 'hex');
+            const computedBuf = Buffer.from(computedSignature, 'hex');
 
             if (signatureBuf.length !== computedBuf.length) {
                 return false;
