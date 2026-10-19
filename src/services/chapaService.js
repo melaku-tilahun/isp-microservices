@@ -22,7 +22,6 @@ class ChapaService {
         try {
             const parsed = new URL(urlString);
             const hostname = parsed.hostname.toLowerCase();
-            // Allowed if hostname exactly matches or endsWith allowed domain (subdomains allowed)
             return this.allowedReturnDomains.some(d => {
                 const domain = d.toLowerCase();
                 return hostname === domain || hostname.endsWith(`.${domain}`);
@@ -50,7 +49,6 @@ class ChapaService {
             throw new AppError('Valid positive payment amount is required.', 400, 'INVALID_AMOUNT');
         }
 
-        // Validate return and callback URLs if provided
         if (returnUrl && !this.isAllowedUrl(returnUrl)) {
             throw new AppError('Invalid returnUrl provided.', 400, 'INVALID_RETURN_URL');
         }
@@ -170,16 +168,13 @@ class ChapaService {
         }
 
         try {
-            // Compute HMAC (hex)
             const computedSignature = crypto
                 .createHmac('sha256', this.webhookSecret)
                 .update(rawBody)
                 .digest('hex');
 
-            // Normalize incoming signature: strip optional prefixes like "sha256=" and whitespace
             const normalized = String(signatureHeader).replace(/^sha256=/i, '').trim();
 
-            // Both values should be hex; compare buffers with timingSafeEqual
             const signatureBuf = Buffer.from(normalized, 'hex');
             const computedBuf = Buffer.from(computedSignature, 'hex');
 
