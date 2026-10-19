@@ -1,0 +1,518 @@
+:root {
+    --bg-page: #f8fafc;
+    --card-bg: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-light: #eff6ff;
+    --success: #10b981;
+    --success-light: #ecfdf5;
+    --warning: #f59e0b;
+    --warning-light: #fffbeb;
+    --danger: #ef4444;
+    --danger-light: #fef2f2;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+    background: var(--bg-page);
+    color: var(--text-primary);
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.portal-container {
+    width: 100%;
+    max-width: 580px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+    flex: 1;
+}
+
+/* Header */
+.portal-header {
+    text-align: center;
+    margin-bottom: 1.25rem;
+}
+
+.company-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.4rem 1rem;
+    border-radius: 9999px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Base Card Box */
+.card-box {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.15rem 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+}
+
+/* 1. Customer Info Grid */
+.customer-card-box {
+    padding: 1.25rem;
+}
+
+.cust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem 1.25rem;
+}
+
+.cust-cell {
+    display: flex;
+    flex-direction: column;
+}
+
+.cust-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+}
+
+.cust-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.font-mono {
+    font-family: monospace;
+    letter-spacing: 0.5px;
+}
+
+/* 2. Total Outstanding Balance Box */
+.balance-box {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 1rem 1.25rem;
+    background: #ffffff;
+    border: 1.5px solid var(--border-strong);
+}
+
+.balance-num {
+    font-weight: 800;
+    color: var(--primary);
+    margin-left: 0.35rem;
+}
+
+/* 3. Total Outstanding Invoices Box */
+.invoices-box {
+    border: 1.5px solid var(--border-strong);
+    padding: 1rem 1.25rem;
+}
+
+.invoices-box-header {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.invoices-count {
+    color: var(--primary);
+    margin-left: 0.25rem;
+}
+
+.total-balance-badge {
+    background: #eff6ff;
+    color: var(--primary);
+    border: 1px solid #bfdbfe;
+    font-size: 0.875rem;
+    font-weight: 800;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    letter-spacing: -0.01em;
+}
+
+.invoices-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.invoice-row-container {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #fafafa;
+    overflow: hidden;
+    transition: all 0.15s ease;
+}
+
+.invoice-summary-row {
+    padding: 0.75rem 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.invoice-summary-row:hover {
+    background: #f1f5f9;
+}
+
+.invoice-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.invoice-chevron {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+    width: 14px;
+}
+
+.inv-index {
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.inv-number {
+    font-family: monospace;
+    font-weight: 700;
+}
+
+.inv-due {
+    font-size: 0.775rem;
+    color: var(--text-muted);
+    font-weight: normal;
+}
+
+.invoice-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.inv-amount {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.inv-badge-overdue {
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: var(--danger-light);
+    color: var(--danger);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+/* Expandable items table */
+.invoice-items-dropdown {
+    background: #ffffff;
+    border-top: 1px dashed var(--border);
+    padding: 0.75rem 0.9rem;
+}
+
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.825rem;
+}
+
+.items-table th {
+    text-align: left;
+    color: var(--text-muted);
+    font-weight: 600;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.items-table td {
+    padding: 0.45rem 0;
+    color: var(--text-secondary);
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.no-items-note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* 4. Payment Form Fields */
+.payment-form-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    margin-top: 1.25rem;
+}
+
+.form-group {
+    margin-bottom: 1.15rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.45rem;
+}
+
+.form-control, .form-select {
+    width: 100%;
+    height: 46px;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.95rem;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: #ffffff;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Upload Dropzone / Button */
+.upload-dropzone {
+    border: 2px dashed var(--border-strong);
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+    padding: 1.15rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.upload-dropzone:hover {
+    background: #f1f5f9;
+    border-color: var(--primary);
+}
+
+.upload-label-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.upload-icon {
+    font-size: 1.25rem;
+    color: var(--primary);
+}
+
+/* Submit Button */
+.btn-submit {
+    width: 100%;
+    height: 48px;
+    background: var(--primary);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: background 0.15s ease, transform 0.05s ease;
+    margin-top: 0.5rem;
+}
+
+.btn-submit:hover {
+    background: var(--primary-hover);
+}
+
+.btn-submit:active {
+    transform: scale(0.99);
+}
+
+/* Review / Rejected / Settled Status Banners */
+.status-card {
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.status-card-pending {
+    background: #ffffff;
+    border: 1.5px solid #f59e0b;
+    border-left: 6px solid #f59e0b;
+}
+
+.status-card-rejected {
+    background: #fef2f2;
+    border: 1.5px solid #ef4444;
+    border-left: 6px solid #ef4444;
+}
+
+.status-card-settled {
+    background: #ecfdf5;
+    border: 1.5px solid #10b981;
+    text-align: center;
+    padding: 2rem 1.25rem;
+}
+
+/* Payment Option Selector Cards */
+.payment-options-box {
+    padding: 1.15rem 1.25rem;
+    margin-top: 1.25rem;
+    border: 1.5px solid var(--border-strong);
+}
+
+.options-heading {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.85rem;
+}
+
+.payment-method-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+}
+
+.method-option-card {
+    border: 2px solid var(--border);
+    background: #ffffff;
+    border-radius: var(--radius-sm);
+    padding: 0.95rem;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.method-option-card:hover {
+    border-color: #93c5fd;
+    background: #f8fafc;
+}
+
+.method-option-card.active {
+    border-color: var(--primary);
+    background: #eff6ff;
+    box-shadow: 0 0 0 1px var(--primary);
+}
+
+.method-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #10b981;
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 9999px;
+    text-transform: uppercase;
+}
+
+.method-badge-manual {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 9999px;
+    text-transform: uppercase;
+}
+
+.method-icon {
+    font-size: 1.35rem;
+    margin-bottom: 0.4rem;
+}
+
+.method-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.method-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.35;
+}
+
+/* Footer */
+.portal-footer {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+@media (max-width: 480px) {
+    .portal-container {
+        padding: 1rem 0.75rem;
+    }
+    .cust-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem 0.5rem;
+    }
+    .cust-label {
+        font-size: 0.675rem;
+    }
+    .cust-value {
+        font-size: 0.875rem;
+    }
+    .balance-box {
+        font-size: 0.95rem;
+    }
+    .invoice-summary-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.35rem;
+    }
+    .invoice-right {
+        align-self: flex-end;
+    }
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - <%= (typeof data !== 'undefined' && data.company && data.company.name) ? data.company.name : 'Billing Portal' %></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/portal.css">
+</head>
+<body>
+    <div class="portal-container">
+        <header class="portal-header">
+            <div class="company-badge">
+                <i class="fas fa-shield-alt"></i> <%= (typeof data !== 'undefined' && data.company && data.company.name) ? data.company.name : 'Internet Service Provider' %>
+            </div>
+        </header>
+
+        <main>
+            <%- include(body, { data: data }) %>
+        </main>
+    </div>
+
+    <footer class="portal-footer">
+        <p>&copy; <%= new Date().getFullYear() %> <%= (typeof data !== 'undefined' && data.company && data.company.name) ? data.company.name : 'ISP' %>. All rights reserved.</p>
+        <p style="margin-top: 0.35rem; font-size: 0.75rem;">Encrypted &amp; Verified Official Billing Service</p>
+    </footer>
+
+    <script src="/js/portal.js"></script>
+</body>
+</html>

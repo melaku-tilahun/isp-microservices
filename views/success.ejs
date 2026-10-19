@@ -1,0 +1,28 @@
+<div class="notice-box">
+    <div class="notice-icon" style="color: var(--success);">
+        <i class="fas fa-check-circle"></i>
+    </div>
+    <h2 class="notice-title">Payment Submitted!</h2>
+    <p class="notice-desc" style="color: var(--text-primary); font-weight: 500;">
+        <%= data.message %>
+    </p>
+
+    <div class="customer-card" style="margin-top: 1.5rem; text-align: left; background: #f8fafc;">
+        <div class="info-item" style="margin-bottom: 0.65rem;">
+            <span class="info-label">Transaction Reference</span>
+            <span class="info-value" style="font-family: monospace; color: var(--primary);"><%= data.ref %></span>
+        </div>
+        <div class="info-item" style="margin-bottom: 0.65rem;">
+            <span class="info-label">Payment Method</span>
+            <span class="info-value"><%= data.method %></span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Reported Amount</span>
+            <span class="info-value"><%= Number(data.amount).toFixed(2) %> ETB</span>
+        </div>
+    </div>
+
+    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1.5rem;">
+        Our accounting department verifies incoming transactions within standard business hours. You will receive an SMS confirmation once credited.
+    </p>
+</div>

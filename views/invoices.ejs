@@ -1,0 +1,237 @@
+<!-- 1. Customer Info Card -->
+<div class="card-box customer-card-box">
+    <div class="cust-grid">
+        <div class="cust-cell">
+            <span class="cust-label">CUSTOMER</span>
+            <span class="cust-value"><%= data.customer.name %></span>
+        </div>
+        <div class="cust-cell">
+            <span class="cust-label">CUSTOMER ID</span>
+            <span class="cust-value font-mono"><%= data.customer.code %></span>
+        </div>
+        <div class="cust-cell">
+            <span class="cust-label">REGISTERED PHONE</span>
+            <span class="cust-value"><%= data.customer.phone %></span>
+        </div>
+        <div class="cust-cell">
+            <span class="cust-label">SERVICE PLAN</span>
+            <span class="cust-value"><%= data.customer.plan %></span>
+        </div>
+    </div>
+</div>
+
+<!-- Outstanding Invoices Box with Total Badge -->
+<div class="card-box invoices-box">
+    <div class="invoices-box-header">
+        <div>
+            Total Outstanding Invoices = <span class="invoices-count"><%= data.summary.unpaid_count %></span>
+        </div>
+        <div class="total-balance-badge">
+            Total: <%= Number(data.summary.total_balance_due).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> <%= data.summary.currency %>
+        </div>
+    </div>
+
+    <% if (!data.invoices || data.invoices.length === 0) { %>
+        <div style="font-size: 0.875rem; color: var(--text-muted); padding: 0.5rem 0;">
+            No unpaid invoices.
+        </div>
+    <% } else { %>
+        <div class="invoices-list">
+            <% data.invoices.forEach(function(inv, idx) { %>
+                <div class="invoice-row-container">
+                    <div class="invoice-summary-row" onclick="toggleInvoiceItems(<%= inv.id %>)" title="Click to view breakdown">
+                        <div class="invoice-left">
+                            <i class="fas fa-chevron-right invoice-chevron" id="chevron_<%= inv.id %>"></i>
+                            <span class="inv-index">inv <%= idx + 1 %>:</span>
+                            <span class="inv-number"><%= inv.invoice_number %></span>
+                            <% if (inv.due_date) { %>
+                                <span class="inv-due">(Due: <%= inv.due_date %>)</span>
+                            <% } %>
+                        </div>
+                        <div class="invoice-right">
+                            <span class="inv-amount"><%= Number(inv.balance_due).toLocaleString('en-US', { minimumFractionDigits: 2 }) %> <%= data.summary.currency %></span>
+                            <% if (inv.is_overdue) { %>
+                                <span class="inv-badge-overdue">Overdue</span>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Expandable Item Breakdown -->
+                    <div class="invoice-items-dropdown" id="items_<%= inv.id %>" style="display: none;">
+                        <% if (inv.items && inv.items.length > 0) { %>
+                            <table class="items-table">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th style="text-align: right;">Amount (<%= data.summary.currency %>)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% inv.items.forEach(function(item) { %>
+                                        <tr>
+                                            <td><%= item.description %></td>
+                                            <td style="text-align: right; font-weight: 600;"><%= Number(item.total_price).toFixed(2) %></td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        <% } else { %>
+                            <div class="no-items-note">Monthly internet subscription fee</div>
+                        <% } %>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    <% } %>
+</div>
+
+<!-- 4. Submission States & Form -->
+<% if (data.submission_state === 'settled' || data.summary.total_balance_due <= 0) { %>
+    <!-- Settled Card -->
+    <div class="status-card status-card-settled">
+        <div style="font-size: 2rem; color: var(--success); margin-bottom: 0.5rem;">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 style="color: #065f46; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;">All Invoices Settled</h3>
+        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+            You have no pending balance. Thank you for your payment!
+        </p>
+    </div>
+
+<% } else if (data.submission_state === 'pending' && data.latest_submission) { %>
+    <!-- Payment Under Review (Upload Locked) -->
+    <div class="status-card status-card-pending">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <strong style="color: #b45309; font-size: 1.05rem;">
+                <i class="fas fa-hourglass-half me-1"></i> Payment Under Review
+            </strong>
+            <span style="background: rgba(245, 158, 11, 0.15); color: #b45309; padding: 0.25rem 0.65rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;">
+                Awaiting Staff Verification
+            </span>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.45;">
+            We have received your payment proof and details. Our finance team is reviewing it. Your internet connection will be automatically resumed/renewed once confirmed.
+        </p>
+
+        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.85rem; font-size: 0.85rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem;">
+            <div>
+                <span style="color: var(--text-muted); font-size: 0.725rem; display: block; font-weight: 600;">METHOD</span>
+                <strong><%= data.latest_submission.payment_method %></strong>
+            </div>
+            <div>
+                <span style="color: var(--text-muted); font-size: 0.725rem; display: block; font-weight: 600;">TRANSACTION REF</span>
+                <strong class="font-mono"><%= data.latest_submission.transaction_ref %></strong>
+            </div>
+            <div>
+                <span style="color: var(--text-muted); font-size: 0.725rem; display: block; font-weight: 600;">AMOUNT REPORTED</span>
+                <strong style="color: var(--success);"><%= Number(data.latest_submission.amount).toLocaleString('en-US', { minimumFractionDigits: 2 }) %> <%= data.summary.currency %></strong>
+            </div>
+            <div>
+                <span style="color: var(--text-muted); font-size: 0.725rem; display: block; font-weight: 600;">SUBMITTED AT</span>
+                <strong><%= data.latest_submission.created_at %></strong>
+            </div>
+        </div>
+
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem;">
+            <i class="fas fa-lock me-1"></i> Upload is locked while your submission is under review.
+        </div>
+    </div>
+
+<% } else { %>
+    <!-- Rejection Alert (If previous submission was rejected) -->
+    <% if (data.submission_state === 'rejected' && data.latest_submission) { %>
+        <div class="status-card status-card-rejected">
+            <strong style="color: #991b1b; display: block; font-size: 0.95rem; margin-bottom: 0.25rem;">
+                <i class="fas fa-exclamation-triangle me-1"></i> Previous Payment Submission Not Approved
+            </strong>
+            <p style="color: #7f1d1d; font-size: 0.85rem; margin-bottom: 0.4rem;">
+                Reason from billing staff: <em><%= data.latest_submission.notes || 'The provided transaction reference could not be verified on our bank statement.' %></em>
+            </p>
+            <span style="font-size: 0.8rem; color: #991b1b; font-weight: 600;">
+                Please verify your receipt and reference code, and submit the corrected payment details below.
+            </span>
+        </div>
+    <% } %>
+
+    <!-- 5. Choose How to Pay: Option 1 (Chapa Online) vs Option 2 (Manual Transfer) -->
+    <div class="card-box payment-options-box">
+        <div class="options-heading">Choose How to Pay</div>
+        <div class="payment-method-selector">
+            <div class="method-option-card active" id="tab-chapa" onclick="selectPaymentOption('chapa')">
+                <span class="method-badge">Instant</span>
+                <div class="method-icon"><i class="fas fa-bolt" style="color: #10b981;"></i></div>
+                <div class="method-title">Pay Online (Chapa)</div>
+                <div class="method-desc">Telebirr, CBE Birr, Awash, Cards. Auto-resumes immediately.</div>
+            </div>
+            <div class="method-option-card" id="tab-manual" onclick="selectPaymentOption('manual')">
+                <span class="method-badge-manual">Manual</span>
+                <div class="method-icon"><i class="fas fa-file-invoice" style="color: #2563eb;"></i></div>
+                <div class="method-title">Bank Transfer / Slip</div>
+                <div class="method-desc">Enter transaction reference and attach slip for staff review.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section A: Chapa Instant Checkout -->
+    <div id="section-chapa" class="payment-form-card" style="text-align: center; padding: 1.75rem 1.25rem;">
+        <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.35rem;">
+            Amount to Pay
+        </div>
+        <div style="font-size: 2.25rem; font-weight: 800; color: #059669; margin-bottom: 0.5rem; letter-spacing: -0.02em;">
+            <%= Number(data.summary.total_balance_due).toLocaleString('en-US', { minimumFractionDigits: 2 }) %> <span style="font-size: 1.15rem; font-weight: 600;"><%= data.summary.currency %></span>
+        </div>
+        <p style="font-size: 0.875rem; color: var(--text-secondary); max-width: 440px; margin: 0 auto 1.5rem auto; line-height: 1.45;">
+            Pay securely with <strong>Telebirr</strong>, <strong>CBE Birr</strong>, <strong>Awash Pay</strong>, or <strong>Bank Card</strong> via Chapa. Your connection is restored immediately upon payment.
+        </p>
+
+        <form action="/inv/chapa/initialize" method="POST">
+            <input type="hidden" name="token" value="<%= data.token %>">
+            <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);">
+                <i class="fas fa-bolt me-1"></i> Pay <%= Number(data.summary.total_balance_due).toLocaleString('en-US', { minimumFractionDigits: 2 }) %> ETB with Chapa
+            </button>
+        </form>
+    </div>
+
+    <!-- Section B: Manual Bank Transfer Form -->
+    <div id="section-manual" class="payment-form-card" style="display: none;">
+        <form action="/inv/submit" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="token" value="<%= data.token %>">
+
+            <div class="form-group">
+                <label class="form-label" for="payment_method">Payment Method</label>
+                <select class="form-select" id="payment_method" name="payment_method" required>
+                    <option value="Telebirr">Telebirr</option>
+                    <option value="Commercial Bank of Ethiopia (CBE)">Commercial Bank of Ethiopia (CBE)</option>
+                    <option value="Awash Bank">Awash Bank</option>
+                    <option value="Bank of Abyssinia">Bank of Abyssinia</option>
+                    <option value="Other Bank Transfer">Other Bank Transfer</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="transaction_ref">Transaction Reference</label>
+                <input type="text" class="form-control" id="transaction_ref" name="transaction_ref" placeholder="e.g. FT2610ABCXYZ or 10001234567" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="amount">Amount Paid (<%= data.summary.currency %>) =</label>
+                <input type="number" step="0.01" class="form-control" id="amount" name="amount" value="<%= data.summary.total_balance_due %>" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Upload Payment Receipt / Slip (Optional)</label>
+                <div class="upload-dropzone" onclick="document.getElementById('receipt').click()">
+                    <input type="file" id="receipt" name="receipt" accept="image/png,image/jpeg,image/webp,application/pdf" style="display:none;" onchange="updateFileName(this)">
+                    <div id="file-upload-label" class="upload-label-content">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <span>Click to choose receipt image or PDF slip</span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-check-circle"></i> <%= data.submission_state === 'rejected' ? 'Re-Submit Payment Confirmation' : 'Submit Payment Confirmation' %>
+            </button>
+        </form>
+    </div>
+<% } %>
